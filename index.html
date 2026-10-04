@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoBuilder — Floorplan to 3D</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">C</span>
+      <div>
+        <h1>CoBuilder</h1>
+        <p>FLOORPLAN STUDIO</p>
+      </div>
+    </div>
+    <div class="project-name"><span>PROJECT</span><strong>Untitled floorplan</strong></div>
+    <div class="topbar-actions">
+      <button id="settingsBtn" class="settings-btn" type="button">Connection settings</button>
+      <a class="platform-tag" href="https://portal.azure.com/" target="_blank" rel="noopener noreferrer">
+        <span>Open Azure portal</span><span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="panel upload-panel">
+      <h2><span class="step-number">01</span><span>Floorplan</span></h2>
+      <p class="hint">Add a plan to start your study.</p>
+      <div class="upload-zone" id="dropZone">
+        <input type="file" id="fileInput" accept="image/*" hidden />
+        <span class="upload-glyph" aria-hidden="true">↑</span>
+        <p class="upload-title">Drop a plan here</p>
+        <p class="upload-subtitle">or <button type="button" id="browseBtn">browse files</button></p>
+        <span class="file-types">PNG · JPG · WEBP</span>
+        <img id="preview" alt="Floorplan preview" hidden />
+      </div>
+      <label>
+        <span>Analysis notes <small>OPTIONAL</small></span>
+        <textarea id="hints" rows="2" placeholder="e.g. scale is 1/4 inch = 1 foot, focus on kitchen"></textarea>
+      </label>
+      <button id="analyzeBtn" class="primary" disabled>Analyze floorplan <span aria-hidden="true">↗</span></button>
+      <div id="status" class="status"></div>
+    </section>
+
+    <section class="panel viewer-panel">
+      <h2><span class="step-number">02</span><span>Spatial model</span></h2>
+      <div id="viewer">
+        <div class="viewer-empty">
+          <span class="viewer-empty-mark" aria-hidden="true">+</span>
+          <strong>Model space</strong>
+          <span>Analyze a floorplan to build the scene.</span>
+        </div>
+      </div>
+      <div class="viewer-footer"><span id="sceneMeta" class="meta">Awaiting floorplan analysis</span><span class="view-label">3D VIEW</span></div>
+    </section>
+
+    <section class="panel plan-panel">
+      <h2><span class="step-number">03</span><span>Renovation plan</span></h2>
+      <p class="hint">Describe the changes you have in mind.</p>
+      <textarea id="renoRequest" rows="3" placeholder="e.g. Open kitchen to living room, new LVP flooring throughout, estimate materials and labor"></textarea>
+      <button id="planBtn" class="primary" disabled>Generate plan <span aria-hidden="true">↗</span></button>
+      <div id="planOutput" class="plan-output"></div>
+    </section>
+  </main>
+
+  <dialog id="connectionDialog" class="connection-dialog">
+    <form id="connectionForm">
+      <div class="dialog-heading">
+        <div>
+          <span class="dialog-kicker">AZURE CONNECTION</span>
+          <h2>Connection settings</h2>
+        </div>
+        <button id="closeSettingsBtn" class="dialog-close" type="button" aria-label="Close settings">×</button>
+      </div>
+
+      <section class="setting-group">
+        <h3>Foundry project</h3>
+        <label for="foundryEndpoint">Project endpoint</label>
+        <input id="foundryEndpoint" name="foundry_project_endpoint" type="url" required placeholder="https://resource.services.ai.azure.com/api/projects/project" />
+        <label for="foundryModel">Model deployment</label>
+        <input id="foundryModel" name="foundry_model" type="text" required placeholder="gpt-4o-mini" />
+      </section>
+
+      <section class="setting-group">
+        <h3>Azure credentials</h3>
+        <label for="credentialMode">Sign-in method</label>
+        <select id="credentialMode" name="azure_credential_mode">
+          <option value="default">Azure CLI / DefaultAzureCredential</option>
+          <option value="service_principal">Service principal</option>
+        </select>
+        <div id="servicePrincipalFields" class="service-principal-fields" hidden>
+          <label for="azureTenantId">Tenant ID</label>
+          <input id="azureTenantId" name="azure_tenant_id" type="text" autocomplete="off" />
+          <label for="azureClientId">Client ID</label>
+          <input id="azureClientId" name="azure_client_id" type="text" autocomplete="off" />
+          <label for="azureClientSecret">Client secret <small id="secretStatus"></small></label>
+          <input id="azureClientSecret" name="azure_client_secret" type="password" autocomplete="new-password" placeholder="Leave blank to keep the saved secret" />
+          <label class="clear-secret-option"><input id="clearClientSecret" type="checkbox" /> Clear saved client secret</label>
+        </div>
+      </section>
+
+      <div id="settingsFeedback" class="settings-feedback" role="status"></div>
+      <div class="dialog-actions">
+        <button id="cancelSettingsBtn" type="button">Cancel</button>
+        <button class="primary" type="submit">Save settings</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>
